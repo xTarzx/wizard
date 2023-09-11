@@ -1,9 +1,12 @@
 #include <iostream>
+#include <thread>
 
 #include "wizard.h"
 #include "pilot.h"
 
 #include "jansson.h"
+
+// #include "threading.h"
 
 void Wizard::SetBulbIP(const char *ip)
 {
@@ -45,7 +48,10 @@ void Wizard::SetState(bool state)
     Pilot pilot;
     pilot.SetState(state);
     std::string msg = pilot.Build();
-    m_socket.SendAndRecv(msg, m_bulb_ip.c_str(), WIZ_PORT);
+
+    std::thread t(&UDPSocket::SendAndRecv, &m_socket, msg, m_bulb_ip.c_str(), WIZ_PORT);
+    t.detach();
+    // m_socket.SendAndRecv(msg, m_bulb_ip.c_str(), WIZ_PORT);
 }
 
 void Wizard::setPilot(Pilot pilot)
@@ -56,7 +62,9 @@ void Wizard::setPilot(Pilot pilot)
         return;
     }
     std::string msg = pilot.Build();
-    m_socket.SendAndRecv(msg, m_bulb_ip.c_str(), WIZ_PORT);
+
+    std::thread t(&UDPSocket::SendAndRecv, &m_socket, msg, m_bulb_ip.c_str(), WIZ_PORT);
+    t.detach();
 }
 
 // UDPSocket s;
