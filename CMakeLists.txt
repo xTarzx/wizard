@@ -16,9 +16,8 @@ set(JANSSON_DIR ${CMAKE_SOURCE_DIR}/extern/jansson/build)
 set(IMGUI_DIR ${PROJECT_SOURCE_DIR}/extern/imgui)
 set(GLFW_DIR ${PROJECT_SOURCE_DIR}/extern/glfw/)
 
-
-add_executable(${PROJECT_NAME}
-    ${CMAKE_SOURCE_DIR}/src/main.cpp
+set(SOURCES 
+${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/udp.cpp
     ${CMAKE_SOURCE_DIR}/src/wizard.cpp
     ${CMAKE_SOURCE_DIR}/src/pilot.cpp
@@ -30,9 +29,15 @@ add_executable(${PROJECT_NAME}
     ${IMGUI_DIR}/imgui_widgets.cpp
     ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
     ${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp
-
 )
 
+if (WIN32)
+set (SOURCES ${SOURCES} ico.o)
+endif()
+
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include
