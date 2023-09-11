@@ -29,6 +29,16 @@ std::string Pilot::Build()
     {
         json_object_set_new(data, "state", json_boolean(m_state));
     }
+    if (m_set_rgb)
+    {
+        json_object_set_new(data, "r", json_integer(m_r));
+        json_object_set_new(data, "g", json_integer(m_g));
+        json_object_set_new(data, "b", json_integer(m_b));
+    }
+    if (m_set_brightness)
+    {
+        json_object_set_new(data, "dimming", json_integer(m_brightness));
+    }
 
     json_object_set_new(root, "params", data);
     std::string msg = json_dumps(root, JSON_COMPACT);
