@@ -13,6 +13,9 @@ project(WiZard VERSION 0.1 LANGUAGES CXX)
 set(CMAKE_CXX_FLAGS "-Wall -Werror -std=c++17")
 
 set(JANSSON_DIR ${CMAKE_SOURCE_DIR}/extern/jansson/build)
+set(IMGUI_DIR ${PROJECT_SOURCE_DIR}/extern/imgui)
+set(GLFW_DIR ${PROJECT_SOURCE_DIR}/extern/glfw/)
+
 
 add_executable(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/src/main.cpp
@@ -26,10 +29,15 @@ add_executable(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${JANSSON_DIR}/include
+    ${GLFW_DIR}/include
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
+
 )
 
 target_link_directories(${PROJECT_NAME} PRIVATE
     ${JANSSON_DIR}/lib
+    ${GLFW_DIR}/build/src
 )
 
 
@@ -37,5 +45,8 @@ target_link_libraries(${PROJECT_NAME} jansson)
 
 if(WIN32)
 target_link_libraries(${PROJECT_NAME} ws2_32)
+target_link_libraries(${PROJECT_NAME} opengl32 glfw3)
+elseif(LINUX)
+target_link_libraries(${PROJECT_NAME} GL glfw)
 
 endif()
