@@ -110,6 +110,8 @@ std::string UDPSocket::SendAndRecv(const std::string &msg, const std::string &ta
 
     // inet_aton(target_ip.c_str(), &dest_addr.sin_addr);
 
+    std::cout << "SENDING: " << msg << std::endl;
+
     int b_sent = sendto(m_socket, msg.c_str(), msg_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
     if (b_sent < 0)
     {
@@ -134,7 +136,7 @@ std::string UDPSocket::SendAndRecv(const std::string &msg, const std::string &ta
         return "";
     }
 
-    std::cout << "received " << b_recv << " bytes" << std::endl;
+    // std::cout << "received " << b_recv << " bytes" << std::endl;
 
     buf[b_recv] = '\0';
 
@@ -150,5 +152,6 @@ std::string UDPSocket::SendAndRecv(const std::string &msg, const std::string &ta
 
     json_decref(root);
 
+    std::cout << "RESPONSE: " << res << std::endl;
     return res;
 }
