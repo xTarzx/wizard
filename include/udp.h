@@ -10,8 +10,10 @@ public:
 
     bool InitSocket();
 
-    std::string SendMessage(const std::string &msg, const std::string &target_ip, uint16_t port);
+    std::string SendAndRecv(const std::string &msg, const std::string &target_ip, uint16_t port);
 
 private:
     int m_socket;
+
+    void cleanup();
 };

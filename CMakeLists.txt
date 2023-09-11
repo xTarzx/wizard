@@ -31,3 +31,8 @@ target_link_directories(${PROJECT_NAME} PRIVATE
 
 
 target_link_libraries(${PROJECT_NAME} jansson)
+
+if(WIN32)
+target_link_libraries(${PROJECT_NAME} ws2_32)
+
+endif()
