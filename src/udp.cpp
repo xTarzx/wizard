@@ -138,5 +138,17 @@ std::string UDPSocket::SendAndRecv(const std::string &msg, const std::string &ta
 
     buf[b_recv] = '\0';
 
-    return buf;
+    // append address to result
+
+    json_error_t error;
+    json_t *root = json_loads(buf, JSON_COMPACT, &error);
+    char addr_buf[MAX_BUF];
+    inet_ntop(from_addr.sin_family, &from_addr.sin_addr, addr_buf, MAX_BUF);
+    json_object_set_new(root, "ip", json_string(addr_buf));
+
+    std::string res = json_dumps(root, JSON_COMPACT);
+
+    json_decref(root);
+
+    return res;
 }
