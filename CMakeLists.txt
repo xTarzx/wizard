@@ -17,6 +17,9 @@ set(JANSSON_DIR ${CMAKE_SOURCE_DIR}/extern/jansson/build)
 add_executable(${PROJECT_NAME}
     ${CMAKE_SOURCE_DIR}/src/main.cpp
     ${CMAKE_SOURCE_DIR}/src/udp.cpp
+    ${CMAKE_SOURCE_DIR}/src/wizard.cpp
+    ${CMAKE_SOURCE_DIR}/src/pilot.cpp
+
 )
 
 
