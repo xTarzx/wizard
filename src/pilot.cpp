@@ -1,6 +1,8 @@
 #include "pilot.h"
 #include "jansson.h"
 
+#include <iostream>
+
 void Pilot::SetState(bool state)
 {
     m_set_state = true;
@@ -17,6 +19,11 @@ void Pilot::SetBrightness(int brightness)
 {
     m_set_brightness = true;
     m_brightness = brightness;
+}
+void Pilot::SetScene(int scene)
+{
+    m_set_scene = true;
+    m_scene = scene;
 }
 
 std::string Pilot::Build()
@@ -38,6 +45,14 @@ std::string Pilot::Build()
     if (m_set_brightness)
     {
         json_object_set_new(data, "dimming", json_integer(m_brightness));
+    }
+
+    if (m_set_scene)
+    {
+        if (m_scene > 0)
+        {
+            json_object_set_new(data, "sceneId", json_integer(m_scene));
+        }
     }
 
     json_object_set_new(root, "params", data);

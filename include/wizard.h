@@ -16,5 +16,7 @@ public:
     bool FindBulb();
     void SetBulbIP(const char *ip);
     void SetState(bool state); // turn on off
-    void setPilot(Pilot pilot);
+    void SetPilot(Pilot pilot);
+
+    void Test();
 };
