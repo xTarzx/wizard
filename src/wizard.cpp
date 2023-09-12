@@ -37,6 +37,15 @@ bool Wizard::FindBulb()
     return true;
 }
 
+void Wizard::Test()
+{
+    json_t *root = json_object();
+    json_object_set_new(root, "method", json_string("getScene"));
+    std::string msg = json_dumps(root, JSON_COMPACT);
+    std::string res = m_socket.SendAndRecv(msg, "192.168.1.69", WIZ_PORT);
+    json_decref(root);
+}
+
 void Wizard::SetState(bool state)
 {
     if (m_bulb_ip.empty())
@@ -54,7 +63,7 @@ void Wizard::SetState(bool state)
     // m_socket.SendAndRecv(msg, m_bulb_ip.c_str(), WIZ_PORT);
 }
 
-void Wizard::setPilot(Pilot pilot)
+void Wizard::SetPilot(Pilot pilot)
 {
     if (m_bulb_ip.empty())
     {
