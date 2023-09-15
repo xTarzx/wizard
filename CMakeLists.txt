@@ -35,10 +35,15 @@ if (WIN32)
 set (SOURCES ${SOURCES} ico.o)
 endif()
 
+if (WIN32)
+add_executable(${PROJECT_NAME} WIN32
+    ${SOURCES}
+)
+else()
 add_executable(${PROJECT_NAME}
     ${SOURCES}
 )
-
+endif()
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${CMAKE_SOURCE_DIR}/include
     ${JANSSON_DIR}/include
