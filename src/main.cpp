@@ -23,6 +23,14 @@ struct State
     int scene_brightness = 100;
 };
 
+void set_rgbB(Wizard *wiz, State *state)
+{
+    Pilot pilot;
+    pilot.SetRGB(state->rgb[0] * 255, state->rgb[1] * 255, state->rgb[2] * 255);
+    pilot.SetBrightness(state->brightness);
+    wiz->SetPilot(pilot);
+}
+
 int main(int argc, char const *argv[])
 {
 
@@ -90,25 +98,16 @@ int main(int argc, char const *argv[])
 
         if (ImGui::ColorPicker3("RGB", state.rgb, ImGuiColorEditFlags_Uint8) && live)
         {
-            Pilot pilot;
-            pilot.SetRGB(state.rgb[0] * 255, state.rgb[1] * 255, state.rgb[2] * 255);
-            pilot.SetBrightness(state.brightness);
-            wiz.SetPilot(pilot);
+            set_rgbB(&wiz, &state);
         }
         if (ImGui::SliderInt("Brightness", &state.brightness, 10, 100) && live)
         {
-            Pilot pilot;
-            pilot.SetRGB(state.rgb[0] * 255, state.rgb[1] * 255, state.rgb[2] * 255);
-            pilot.SetBrightness(state.brightness);
-            wiz.SetPilot(pilot);
+            set_rgbB(&wiz, &state);
         }
 
         if (ImGui::Button("set"))
         {
-            Pilot pilot;
-            pilot.SetRGB(state.rgb[0] * 255, state.rgb[1] * 255, state.rgb[2] * 255);
-            pilot.SetBrightness(state.brightness);
-            wiz.SetPilot(pilot);
+            set_rgbB(&wiz, &state);
         }
 
         ImGui::End(); // Control
