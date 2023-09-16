@@ -13,6 +13,16 @@ const int WINDOW_HEIGHT = 720;
 
 const int BUF_SZ = 4096;
 
+bool live = false;
+
+struct State
+{
+    float rgb[3] = {0, 0, 1};
+    int brightness = 100;
+    int sel_scene = 0;
+    int scene_brightness = 100;
+};
+
 int main(int argc, char const *argv[])
 {
 
@@ -43,11 +53,7 @@ int main(int argc, char const *argv[])
 
     char ip_addr[BUF_SZ] = "192.168.1.69";
 
-    float rgb[3] = {0, 0, 1};
-    int brightness = 100;
-
-    int sel_scene = 0;
-    int scene_brightness = 100;
+    State state;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -78,15 +84,30 @@ int main(int argc, char const *argv[])
         {
             wiz.SetState(false);
         }
+        ImGui::SameLine();
 
-        ImGui::ColorPicker3("RGB", rgb, ImGuiColorEditFlags_Uint8);
-        ImGui::SliderInt("Brightness", &brightness, 10, 100);
+        ImGui::Checkbox("live", &live);
+
+        if (ImGui::ColorPicker3("RGB", state.rgb, ImGuiColorEditFlags_Uint8) && live)
+        {
+            Pilot pilot;
+            pilot.SetRGB(state.rgb[0] * 255, state.rgb[1] * 255, state.rgb[2] * 255);
+            pilot.SetBrightness(state.brightness);
+            wiz.SetPilot(pilot);
+        }
+        if (ImGui::SliderInt("Brightness", &state.brightness, 10, 100) && live)
+        {
+            Pilot pilot;
+            pilot.SetRGB(state.rgb[0] * 255, state.rgb[1] * 255, state.rgb[2] * 255);
+            pilot.SetBrightness(state.brightness);
+            wiz.SetPilot(pilot);
+        }
 
         if (ImGui::Button("set"))
         {
             Pilot pilot;
-            pilot.SetRGB(rgb[0] * 255, rgb[1] * 255, rgb[2] * 255);
-            pilot.SetBrightness(brightness);
+            pilot.SetRGB(state.rgb[0] * 255, state.rgb[1] * 255, state.rgb[2] * 255);
+            pilot.SetBrightness(state.brightness);
             wiz.SetPilot(pilot);
         }
 
@@ -96,18 +117,18 @@ int main(int argc, char const *argv[])
 
         for (int i = 1; i < SceneCount; i++)
         {
-            ImGui::RadioButton(SceneStr[i], &sel_scene, i);
+            ImGui::RadioButton(SceneStr[i], &state.sel_scene, i);
             if (i % 2 != 0)
                 ImGui::SameLine();
         }
 
-        ImGui::SliderInt("Brightness", &scene_brightness, 10, 100);
+        ImGui::SliderInt("Brightness", &state.scene_brightness, 10, 100);
 
         if (ImGui::Button("set"))
         {
             Pilot pilot;
-            pilot.SetScene(sel_scene);
-            pilot.SetBrightness(scene_brightness);
+            pilot.SetScene(state.sel_scene);
+            pilot.SetBrightness(state.scene_brightness);
             wiz.SetPilot(pilot);
         }
 
