@@ -74,7 +74,7 @@ bool UDPSocket::InitSocket()
 
     timeval recv_timeout;
     recv_timeout.tv_usec = 0;
-    recv_timeout.tv_sec = 8;
+    recv_timeout.tv_sec = 4;
 
 #ifdef _WIN32
     DWORD timeout = recv_timeout.tv_sec * 1000;
@@ -154,4 +154,67 @@ std::string UDPSocket::SendAndRecv(const std::string &msg, const std::string &ta
 
     std::cout << "RESPONSE: " << res << std::endl;
     return res;
+}
+
+bool UDPSocket::SendAndRecvAll(const std::string &msg, const std::string &target_ip, uint16_t port, std::vector<std::string> *dst)
+{
+    if (m_socket < 0)
+    {
+        std::cerr << "ERROR: socket is not initialized" << std::endl;
+        return false;
+    }
+
+    int msg_len = strlen(msg.c_str());
+
+    struct sockaddr_in dest_addr;
+    memset(&dest_addr, 0, sizeof(dest_addr));
+    dest_addr.sin_family = AF_INET;
+    dest_addr.sin_port = htons(port);
+    inet_pton(AF_INET, target_ip.c_str(), &dest_addr.sin_addr);
+
+    // inet_aton(target_ip.c_str(), &dest_addr.sin_addr);
+
+    std::cout << "SENDING: " << msg << std::endl;
+
+    int b_sent = sendto(m_socket, msg.c_str(), msg_len, 0, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
+    if (b_sent < 0)
+    {
+        std::cerr << "ERROR: could not send, " << std::strerror(errno) << std::endl;
+        return false;
+    }
+
+    struct sockaddr_in from_addr;
+    memset(&from_addr, 0, sizeof(from_addr));
+    socklen_t len = sizeof(from_addr);
+
+    char buf[MAX_BUF];
+    int flags = 0;
+#ifndef _WIN32
+    flags = MSG_WAITALL;
+#endif
+    while (1)
+    {
+
+        int b_recv = recvfrom(m_socket, buf, MAX_BUF, flags, (struct sockaddr *)&from_addr, &len);
+
+        if (b_recv < 0)
+        {
+            std::cerr << "ERROR: response timed out" << std::endl;
+            break;
+        }
+        // std::cout << "received " << b_recv << " bytes" << std::endl;
+        buf[b_recv] = '\0';
+        // append address to result
+        json_error_t error;
+        json_t *root = json_loads(buf, JSON_COMPACT, &error);
+        char addr_buf[MAX_BUF];
+        inet_ntop(from_addr.sin_family, &from_addr.sin_addr, addr_buf, MAX_BUF);
+        json_object_set_new(root, "ip", json_string(addr_buf));
+        std::string res = json_dumps(root, JSON_COMPACT);
+        json_decref(root);
+        std::cout << "RESPONSE: " << res << std::endl;
+        dst->push_back(res);
+    }
+
+    return true;
 }
