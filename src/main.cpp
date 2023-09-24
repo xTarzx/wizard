@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -33,7 +34,6 @@ void set_rgbB(Wizard *wiz, State *state)
 
 int main(int argc, char const *argv[])
 {
-
     if (!glfwInit())
         return 1;
 
@@ -57,9 +57,10 @@ int main(int argc, char const *argv[])
     ImGui_ImplOpenGL3_Init("#version 130");
 
     Wizard wiz;
-    wiz.SetBulbIP("192.168.1.69");
-
-    char ip_addr[BUF_SZ] = "192.168.1.69";
+    const char *bip = "192.168.1.69";
+    wiz.SetBulbIP(bip);
+    char ip_addr[BUF_SZ] = {};
+    std::strcpy(ip_addr, bip);
 
     State state;
 
@@ -77,6 +78,20 @@ int main(int argc, char const *argv[])
         if (ImGui::InputText("IP", ip_addr, BUF_SZ))
         {
             wiz.SetBulbIP(ip_addr);
+        }
+
+        if (ImGui::Button("Find"))
+        {
+            wiz.FindBulbs();
+        }
+
+        for (std::string &ip : wiz.m_bulb_ips)
+        {
+            if (ImGui::Button(ip.c_str()))
+            {
+                wiz.SetBulbIP(ip.c_str());
+                std::strcpy(ip_addr, wiz.GetBulbIP().c_str());
+            }
         }
 
         ImGui::End(); // Bulbs

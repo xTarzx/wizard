@@ -13,6 +13,11 @@ void Wizard::SetBulbIP(const char *ip)
     m_bulb_ip = ip;
 }
 
+std::string Wizard::GetBulbIP()
+{
+    return m_bulb_ip;
+}
+
 bool Wizard::FindBulb()
 {
     json_t *root = json_object();
@@ -33,6 +38,40 @@ bool Wizard::FindBulb()
     json_decref(root);
 
     m_bulb_ip = ip;
+
+    return true;
+}
+
+bool Wizard::FindBulbs()
+{
+    json_t *root = json_object();
+    json_object_set_new(root, "method", json_string("getDevInfo"));
+    std::string msg = json_dumps(root, JSON_COMPACT);
+
+    std::vector<std::string> res = {};
+
+    bool suc = m_socket.SendAndRecvAll(msg, "192.168.1.255", WIZ_PORT, &res);
+
+    if (!suc)
+    {
+        return false;
+    }
+
+    m_mtx.lock();
+    m_bulb_ips.clear();
+    for (std::string &entry : res)
+    {
+        json_error_t error;
+        root = json_loads(entry.c_str(), JSON_COMPACT, &error);
+        json_t *j_ip = json_object_get(root, "ip");
+        std::string ip = json_string_value(j_ip);
+        json_decref(root);
+
+        m_bulb_ips.push_back(ip);
+    }
+    m_mtx.unlock();
+
+    std::cout << m_bulb_ips.size() << std::endl;
 
     return true;
 }
