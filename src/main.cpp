@@ -64,6 +64,8 @@ int main(int argc, char const *argv[])
 
     State state;
 
+    state.sel_scene = 12;
+
     while (!glfwWindowShouldClose(window))
     {
 
