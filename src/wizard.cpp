@@ -115,6 +115,13 @@ void Wizard::SetPilot(Pilot pilot)
     t.detach();
 }
 
+// TODO: get bulb pilot
+void Wizard::getPilot(Pilot *pilot)
+{
+    if (m_bulb_ip.empty())
+        return;
+}
+
 // UDPSocket s;
 // json_t *root = json_object();
 // json_object_set_new(root, "method", json_string("getDevInfo"));

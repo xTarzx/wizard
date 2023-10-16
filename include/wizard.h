@@ -27,5 +27,7 @@ public:
     void SetState(bool state); // turn on off
     void SetPilot(Pilot pilot);
 
+    void getPilot(Pilot *pilot);
+
     void Test();
 };

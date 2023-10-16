@@ -6,6 +6,9 @@
 #include "imgui_impl_opengl3.h"
 #include <GLFW/glfw3.h>
 
+#define MINIAUDIO_IMPLEMENTATION
+#include "miniaudio.h"
+
 #include "wizard.h"
 #include "scenes.h"
 
@@ -15,6 +18,8 @@ const int WINDOW_HEIGHT = 720;
 const int BUF_SZ = 4096;
 
 bool live = false;
+
+bool capture = false;
 
 struct State
 {
@@ -32,8 +37,62 @@ void set_rgbB(Wizard *wiz, State *state)
     wiz->SetPilot(pilot);
 }
 
+bool voice_toggle = false;
+int cd = 0;
+ma_int16 avg = 0;
+ma_int16 havg = 0;
+
+void data_callback(ma_device *pDevice, void *pOutput, const void *pInput, ma_uint32 frameCount)
+{
+    cd -= 1;
+
+    if (!capture)
+        return;
+
+    Wizard *wiz = (Wizard *)pDevice->pUserData;
+
+    ma_int16 *input = (ma_int16 *)pInput;
+    ma_int16 sum = 0;
+
+    for (ma_uint32 i = 0; i < frameCount; ++i)
+    {
+        sum += input[i];
+    }
+
+    avg = sum / frameCount;
+
+    if (avg < 0)
+        avg = 0;
+
+    if (avg > havg)
+        havg = avg;
+
+    if (avg > 33 && cd < 0)
+    {
+        cd = 50;
+        voice_toggle = !voice_toggle;
+        wiz->SetState(voice_toggle);
+    }
+}
+
 int main(int argc, char const *argv[])
 {
+    ma_device_config config = ma_device_config_init(ma_device_type_capture);
+    config.capture.format = ma_format_s16;
+    config.capture.channels = 1;
+    config.sampleRate = 16000;
+    config.dataCallback = data_callback;
+    config.pUserData = nullptr;
+
+    ma_device device;
+
+    if (ma_device_init(NULL, &config, &device) != MA_SUCCESS)
+    {
+        return 1;
+    }
+
+    ma_device_start(&device);
+
     if (!glfwInit())
         return 1;
 
@@ -61,6 +120,8 @@ int main(int argc, char const *argv[])
     wiz.SetBulbIP(bip);
     char ip_addr[BUF_SZ] = {};
     std::strcpy(ip_addr, bip);
+
+    device.pUserData = &wiz;
 
     State state;
 
@@ -150,6 +211,21 @@ int main(int argc, char const *argv[])
 
         ImGui::End(); // Scenes
 
+        ImGui::Begin("Audio");
+
+        if (ImGui::Checkbox("on", &capture))
+        {
+            if (capture)
+            {
+                wiz.SetState(voice_toggle);
+            }
+        };
+
+        ImGui::Text("peak: %d", havg);
+        ImGui::Text("%d", avg);
+
+        ImGui::End();
+
         ImGui::Render();
 
         int display_w, display_h;
@@ -161,6 +237,8 @@ int main(int argc, char const *argv[])
 
         glfwSwapBuffers(window);
     }
+
+    ma_device_uninit(&device);
 
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
