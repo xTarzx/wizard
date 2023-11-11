@@ -27,6 +27,7 @@ struct State
     int brightness = 100;
     int sel_scene = 0;
     int scene_brightness = 100;
+    int scene_temp = 50;
 };
 
 void set_rgbB(Wizard *wiz, State *state)
@@ -201,11 +202,14 @@ int main(int argc, char const *argv[])
 
         ImGui::SliderInt("Brightness", &state.scene_brightness, 10, 100);
 
+        ImGui::SliderInt("Temperature", &state.scene_temp, 10, 100);
+
         if (ImGui::Button("set"))
         {
             Pilot pilot;
             pilot.SetScene(state.sel_scene);
             pilot.SetBrightness(state.scene_brightness);
+            pilot.SetTemp(state.scene_temp);
             wiz.SetPilot(pilot);
         }
 

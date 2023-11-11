@@ -26,6 +26,12 @@ void Pilot::SetScene(int scene)
     m_scene = scene;
 }
 
+void Pilot::SetTemp(int temp)
+{
+    m_set_temp = true;
+    m_temp = temp;
+}
+
 std::string Pilot::Build()
 {
     json_t *root = json_object();
@@ -45,6 +51,10 @@ std::string Pilot::Build()
     if (m_set_brightness)
     {
         json_object_set_new(data, "dimming", json_integer(m_brightness));
+    }
+    if (m_set_temp)
+    {
+        json_object_set_new(data, "temp", json_integer(m_temp));
     }
 
     if (m_set_scene)
