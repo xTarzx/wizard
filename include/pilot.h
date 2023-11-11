@@ -18,11 +18,15 @@ private:
     bool m_set_scene = false;
     int m_scene;
 
+    bool m_set_temp = false;
+    int m_temp;
+
 public:
     void SetState(bool state);
     void SetRGB(int r, int g, int b);
     void SetBrightness(int brightness);
     void SetScene(int scene);
+    void SetTemp(int temp);
 
     std::string Build();
 };
