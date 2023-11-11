@@ -1,3 +1,5 @@
 .vscode
 build
 imgui.ini
+env
+devox_build
